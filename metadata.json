@@ -1,0 +1,8 @@
+{
+  "name": "SpiroLab Pro",
+  "description": "Interactive Spirometry Simulator for clinical analysis of lung function, including normal, obstructive, and restrictive patterns.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
