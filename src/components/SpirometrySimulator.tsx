@@ -131,6 +131,44 @@ const calculateTheoreticalFev1 = (gender: 'M' | 'F', age: number, height: number
   }
 };
 
+const getRandomPatientData = (targetPattern: SpiroPattern) => {
+  const maleNames = [
+    'Carlos Ruiz', 'Juan Pérez', 'Alejandro Gómez', 'Miguel Ángel', 'Javier Fernández', 
+    'Luis Martínez', 'Andrés Castro', 'Roberto Díaz', 'Héctor Jiménez', 'José Mendoza', 
+    'Francisco Silva', 'Pedro Morales', 'Santiago Ortega', 'Diego Herrera', 'Manuel Salazar'
+  ];
+  const femaleNames = [
+    'María González', 'Laura Rodríguez', 'Ana Belén', 'Sofía Herrera', 'Beatriz Flores', 
+    'Elena Romero', 'Camila Vargas', 'Valentina Ortiz', 'Patricia Méndez', 'Isabel Delgado', 
+    'Gabriela Solís', 'Lucía Torres', 'Carolina Peña', 'Daniela Medina', 'Rosa Espejo'
+  ];
+  
+  const gender: 'M' | 'F' = Math.random() < 0.5 ? 'M' : 'F';
+  const name = gender === 'M' 
+    ? maleNames[Math.floor(Math.random() * maleNames.length)] 
+    : femaleNames[Math.floor(Math.random() * femaleNames.length)];
+    
+  let age = 45;
+  let height = 170;
+  let weight = 70;
+  
+  if (targetPattern === SpiroPattern.NORMAL) {
+    age = Math.floor(20 + Math.random() * 35); // 20 - 54
+    height = gender === 'M' ? Math.floor(168 + Math.random() * 16) : Math.floor(154 + Math.random() * 18);
+    weight = gender === 'M' ? Math.floor(65 + Math.random() * 24) : Math.floor(50 + Math.random() * 24);
+  } else if (targetPattern === SpiroPattern.OBSTRUCTIVE) {
+    age = Math.floor(55 + Math.random() * 28); // 55 - 82 (EPOC/COPD is typically in older adults)
+    height = gender === 'M' ? Math.floor(164 + Math.random() * 16) : Math.floor(152 + Math.random() * 16);
+    weight = gender === 'M' ? Math.floor(58 + Math.random() * 32) : Math.floor(46 + Math.random() * 30);
+  } else if (targetPattern === SpiroPattern.RESTRICTIVE) {
+    age = Math.floor(45 + Math.random() * 34); // 45 - 78
+    height = gender === 'M' ? Math.floor(165 + Math.random() * 15) : Math.floor(150 + Math.random() * 18);
+    weight = gender === 'M' ? Math.floor(55 + Math.random() * 25) : Math.floor(45 + Math.random() * 23);
+  }
+  
+  return { name, age, gender, height, weight };
+};
+
 const getCustomCaseValues = (
   name: string,
   age: number,
@@ -471,7 +509,37 @@ export default function SpirometrySimulator() {
     setCustomPattern(randomPattern);
     setCustomRandomSeed(Math.random());
     
+    // Randomize patient demographics matching the selected pattern
+    const randomData = getRandomPatientData(randomPattern);
+    setCustomName(randomData.name);
+    setCustomAge(randomData.age);
+    setCustomGender(randomData.gender);
+    setCustomHeight(randomData.height);
+    setCustomWeight(randomData.weight);
+    
     // Also reset test phase to 'idle' so they have to run the spirometry test again with the new patient values!
+    setTestPhase('idle');
+    setTestTime(0);
+    setLiveVtPoints([]);
+    setLiveFvPoints([]);
+    setIsEvaluated(false);
+    setEvalDiagnosis(null);
+    setEvalRatioLow(null);
+    setEvalFvcLow(null);
+    setEvalFev1Low(null);
+    setEvalPbdIndicated(null);
+  };
+
+  const handleRandomizePatientDetails = () => {
+    // Randomize patient demographics matching the current pattern
+    const randomData = getRandomPatientData(customPattern);
+    setCustomName(randomData.name);
+    setCustomAge(randomData.age);
+    setCustomGender(randomData.gender);
+    setCustomHeight(randomData.height);
+    setCustomWeight(randomData.weight);
+    
+    // Reset test phase so they can run the test with the new patient values
     setTestPhase('idle');
     setTestTime(0);
     setLiveVtPoints([]);
@@ -925,11 +993,19 @@ export default function SpirometrySimulator() {
                 <div className="pt-1.5 border-t border-slate-800 flex flex-col gap-1.5">
                   <button
                     type="button"
+                    onClick={handleRandomizePatientDetails}
+                    className="w-full py-1.5 bg-slate-950 hover:bg-slate-900 text-amber-400 hover:text-amber-300 border border-slate-800 font-bold rounded-lg text-[10px] transition-all flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+                  >
+                    <User className="w-3.5 h-3.5 text-amber-400" />
+                    👤 Colocar Paciente al Azar
+                  </button>
+                  <button
+                    type="button"
                     onClick={handleRandomizeCase}
                     className="w-full py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg text-[10px] transition-all flex items-center justify-center gap-1.5 shadow-md shadow-amber-950/20 active:scale-95"
                   >
                     <RefreshCw className="w-3 h-3" />
-                    🎲 Simular al Azar
+                    🎲 Simular Caso al Azar
                   </button>
                 </div>
               </div>
